@@ -10,8 +10,12 @@ Adafruit_MPU6050 mpu;
 unsigned long time1 = 0;
 unsigned long time2 = 0;
 int contador = 0;
-float angulo_x0 = 0;
-float angulo_x1 = 0;
+float angulo_x0_giro = 0;
+float angulo_x1_giro = 0;
+float angulo_x0_acel = 0;
+float angulo_filtro_complementario = 0;
+float alfa = 0.02;
+float angulo_filtro_complementario_deg = 0;
 float pi = 3.1415926;
 
 void setup(void) {
@@ -42,28 +46,33 @@ void loop() {
 	
   time1 = micros();
 
-  //Como sacar el angulo X (usando giroscopos):
-  //mido a 100Hz e integro la velocidad angular para sacar el grado
-  //integro en discreto: 
-  // tita_1 = tita_0 + w_0 * tiempo
-  // tita_2 = ...
-  // todo esto lo hago en un determinado ciclo y lo saco por serial print, a 100Hz.
-
-
- sensors_event_t a, g, temp;
+  sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  angulo_x1 = angulo_x0 + g.gyro.x * 1/(float)(Frec_muestreo);
-  angulo_x0 = angulo_x1;
-  float angulo_x1_deg = (angulo_x1 * 180) / pi; 
+  angulo_x1_giro = angulo_x0_giro + g.gyro.x * 1/(float)(Frec_muestreo);
+  angulo_x0_giro = angulo_x1_giro;
+
+
+  angulo_x0_acel = atan2(a.acceleration.y, a.acceleration.z);
+
+
+  //junto las dos estimaciones haciendo una ponderacion:
+
+  // tita = alfa * tita_acelerometro + (1-alfa) * tita_giroscopo
+
+  //ej alfa = 0.02, le doy poca importancia en la medicion instantanea al acelerometro.
+
+  angulo_filtro_complementario = alfa * (angulo_x0_acel) + (1-alfa) * angulo_x1_giro;
+
+  angulo_filtro_complementario_deg = (angulo_filtro_complementario * 180) / pi; 
   
   if (contador == 100){
-    Serial.println(angulo_x1_deg);
+    Serial.println(angulo_filtro_complementario_deg);
     contador = 0;
   }
-
   
-	// Matlab send
+
+ 	// Matlab send
   //matlab_send(d1,d2,d3);
 
 
@@ -84,3 +93,4 @@ void matlab_send(float dato1, float dato2, float dato3){
   b = (byte *) &dato3;
   Serial.write(b,4);
 }
+

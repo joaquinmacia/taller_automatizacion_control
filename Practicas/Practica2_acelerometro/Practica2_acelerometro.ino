@@ -42,16 +42,14 @@ void loop() {
 	
   time1 = micros();
 
-
-
- sensors_event_t a, g, temp;
+  sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
 
   //otra forma de obtener el anglo del eje X (con acelerometros):
 
   // Si lo dejo quieto, va a medir la aceleracion de la gravedad. El vector gravedad es siempre normal al piso.
-  // Si muevo la placa (la inclino) el vector gracedad queda todo sobre otro eje. 
+  // Si muevo la placa (la inclino) el vector gravedad queda todo sobre otro eje. 
   // si esta a 45 grados: descomposicion con trigonometricas.
   // Ahi esta la relacion entre lo que mide cada acelerometro en cada eje y la inclinacion de la placa (arcotg del angulo con atan2()). 
 
@@ -66,19 +64,6 @@ void loop() {
     contador = 0;
   }
   
-
-  //junto las dos estimaciones haciendo una ponderacion:
-
-  // tita = alfa * tita_acelerometro + (1-alfa) * tita_giroscopo
-
-  //ej alfa = 0.02, le doy poca importancia en la medicion instantanea al acelerometro.
-
-  
-	// Matlab send
-  //matlab_send(d1,d2,d3);
-
-
-
 
   int aux = 1000000/Frec_muestreo;
   time2 = micros();
