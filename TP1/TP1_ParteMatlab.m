@@ -34,9 +34,15 @@ B_eval = eval(B);
 C_eval = eval(C);
 D_eval = eval(D);
 
+%Defino la matriz identidad
+I = eye(size(A));
+
+% Calcular la función de transferencia
+H = C_eval * inv(s*I - A_eval) * B_eval + D_eval;
 P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
 C = 1;
 L = P * C; 
 S=1/(1+L);
 T=1-S;
+
 
