@@ -13,6 +13,7 @@ int contador = 0;
 float angulo_x0 = 0;
 float angulo_x1 = 0;
 float pi = 3.1415926;
+float offset = 0.07;
 
 void setup(void) {
 	Serial.begin(115200);
@@ -53,7 +54,7 @@ void loop() {
  sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  angulo_x1 = angulo_x0 + g.gyro.x * 1/(float)(Frec_muestreo);
+  angulo_x1 = angulo_x0 + (g.gyro.x + offset) * 1/(float)(Frec_muestreo);
   angulo_x0 = angulo_x1;
   float angulo_x1_deg = (angulo_x1 * 180) / pi; 
   

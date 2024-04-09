@@ -106,7 +106,7 @@ void loop() {
   Serial.print(", Z: ");
   Serial.print(a.acceleration.z);
   Serial.println(" m/s^2");
-
+/*
   Serial.print("Rotation X: ");
   Serial.print(g.gyro.x);
   Serial.print(", Y: ");
@@ -120,7 +120,7 @@ void loop() {
   Serial.println(" degC");
 
   Serial.println("");
-
+*/
   int aux = 1000000/Frec_muestreo_pote;
   time2 = micros();
 

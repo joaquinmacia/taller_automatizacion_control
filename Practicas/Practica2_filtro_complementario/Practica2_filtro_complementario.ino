@@ -14,9 +14,15 @@ float angulo_x0_giro = 0;
 float angulo_x1_giro = 0;
 float angulo_x0_acel = 0;
 float angulo_filtro_complementario = 0;
-float alfa = 0.02;
+float alpha = 0.98;
 float angulo_filtro_complementario_deg = 0;
+float angulo_filtro_complementario_anterior;
+float angulo_filtro_complementario_actual;
 float pi = 3.1415926;
+
+//Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
+float offset_aceleracion_Y = 0.02;
+float offset_aceleracion_Z = 9.8 - 7.86;
 
 void setup(void) {
 	Serial.begin(115200);
@@ -38,6 +44,7 @@ void setup(void) {
 
 	// set filter bandwidth to 5-10-21-44-94-184-260 Hz
 	mpu.setFilterBandwidth(MPU6050_BAND_10_HZ);
+  angulo_filtro_complementario_anterior = 0;
 
 	delay(100);
 }
@@ -49,33 +56,18 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  angulo_x1_giro = angulo_x0_giro + g.gyro.x * 1/(float)(Frec_muestreo);
-  angulo_x0_giro = angulo_x1_giro;
+  angulo_x0_acel = atan2(a.acceleration.y + offset_aceleracion_Y, a.acceleration.z + offset_aceleracion_Z);
 
+  angulo_filtro_complementario_actual = (1 - alpha) * (angulo_filtro_complementario_anterior + g.gyro.x * 1/(float)(Frec_muestreo)) + alpha * angulo_x0_acel;
+  angulo_filtro_complementario_anterior = angulo_filtro_complementario_actual;
 
-  angulo_x0_acel = atan2(a.acceleration.y, a.acceleration.z);
-
-
-  //junto las dos estimaciones haciendo una ponderacion:
-
-  // tita = alfa * tita_acelerometro + (1-alfa) * tita_giroscopo
-
-  //ej alfa = 0.02, le doy poca importancia en la medicion instantanea al acelerometro.
-
-  angulo_filtro_complementario = alfa * (angulo_x0_acel) + (1-alfa) * angulo_x1_giro;
-
-  angulo_filtro_complementario_deg = (angulo_filtro_complementario * 180) / pi; 
+  angulo_filtro_complementario_deg = (angulo_filtro_complementario_actual * 180) / pi; 
   
   if (contador == 100){
     Serial.println(angulo_filtro_complementario_deg);
     contador = 0;
   }
   
-
- 	// Matlab send
-  //matlab_send(d1,d2,d3);
-
-
   int aux = 1000000/Frec_muestreo;
   time2 = micros();
   contador++;
@@ -83,14 +75,4 @@ void loop() {
 
 }
 
-
-void matlab_send(float dato1, float dato2, float dato3){
-  Serial.write("abcd");
-  byte * b = (byte *) &dato1;
-  Serial.write(b,4);
-  b = (byte *) &dato2;
-  Serial.write(b,4);
-  b = (byte *) &dato3;
-  Serial.write(b,4);
-}
 
