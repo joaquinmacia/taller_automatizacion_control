@@ -4,9 +4,7 @@ close all;
 
 syms L L_h L_l A_h A_l Qi L1 h u A_sal g u0 h0 s;
 
-
-f = 3 * L1 * (Qi - A_sal * u * sqrt(2 * g * h))/(L_l^2 * (3 * h^2 + 6 * L1 * h + 3 * L1^2)) ;
-%f = 3 * L1 * (A_sal * u * sqrt(2 * g * h) - Qi)/(L_l^2 * (3 * h^2 + 6 * L1 * h + 3 * L1^2)) ;
+f = 3 * L1^2 * (Qi - A_sal * u * sqrt(2 * g * h))/(L_l^2 * (3 * h^2 + 6 * L1 * h + 3 * L1^2)) ;
 y = h; %Salida del sistema
 
 %Genero las matrices de estados
