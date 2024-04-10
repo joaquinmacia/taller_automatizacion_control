@@ -40,14 +40,10 @@ I = eye(size(A));
 % Calcular la función de transferencia
 H = C_eval * inv(s*I - A_eval) * B_eval + D_eval;
 P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
-C = zpk([-0.00237], [0, -0.5], -db2mag(10));
+C = zpk([-0.009], [0], -db2mag(0));
 L = P * C; 
 S=1/(1+L);
 T=1-S;
-PC = 1 / (1+L);
-figure(1);
-bode(L);
-figure(2);
-step(PC);
+PC = 1
 
 
