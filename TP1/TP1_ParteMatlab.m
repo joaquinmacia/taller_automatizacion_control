@@ -39,7 +39,7 @@ I = eye(size(A));
 
 % Calcular la función de transferencia
 H = C_eval * inv(s*I - A_eval) * B_eval + D_eval;
-Pmp = zpk(ss(A_eval,B_eval,C_eval,D_eval));
+P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
 
 %       -0.004233
 % P =   -----------
@@ -49,19 +49,20 @@ Pmp = zpk(ss(A_eval,B_eval,C_eval,D_eval));
 %el tiempo de la planta es tau = 480s siendo la frecuencia natural f= 0.0021.
 % w = 0.0132 rad/s
 
-Ts = 1;
-Pap = zpk([4/Ts], [-4/Ts], -1);
-P = Pap * Pmp;
+%Ts = 1;
+%Pap = zpk([4/Ts], [-4/Ts], -1);
+
 C = zpk([-0.00237], [0], -db2mag(13)); %Este anda
+
 L = P * C; 
-S=1/(1+L);
-T=1-S;
-PS = 1 / (1+L);
+S = 1 / (1+L);
+T = 1 - S;
+PS = 1 / (1 + L);
 figure(1);
 bode(L);
 figure(2);
 step(PS);
 
-Cd = c2d(C, Ts, 'tustin');
+%Cd = c2d(C, Ts, 'zoh');
 
 
