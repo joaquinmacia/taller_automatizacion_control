@@ -101,7 +101,7 @@ x = [h_n(1:tam-1) u_n(1:tam-1)];
 
 params = pinv(x) * h_n1;
 
-Kd = params(2)
+Kd = params(2);
 pd = params(1);
 
 % En la discretizacion de ZOH
