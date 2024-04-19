@@ -101,7 +101,7 @@ x = [h_n(1:tam-1) u_n(1:tam-1)];
 
 params = pinv(x) * h_n1;
 
-Kd = params(2);
+Kd = params(2)
 pd = params(1);
 
 % En la discretizacion de ZOH
@@ -138,7 +138,7 @@ plot (t, h)
 plot(t,a1)
 step(0.05*P + h(1))
 title("Junto las 3 estimaciones")
-legend ({"Datos", "Estimacion a ojo","Estimacion por regresion"}, "location", "northeast");
+legend ({"Estimacion por regresion", "Datos", "Estimacion a ojo"}, "location", "northeast");
 
 
 
