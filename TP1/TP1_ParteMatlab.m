@@ -49,7 +49,7 @@ P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
 %el tiempo de la planta es tau = 480s siendo la frecuencia natural f= 0.0021.
 % w = 0.0132 rad/s
 
-%Ts = 1;
+Ts = 1;
 %Pap = zpk([4/Ts], [-4/Ts], -1);
 
 C = zpk([-0.00237], [0], -db2mag(10)); %Este anda
@@ -64,5 +64,57 @@ figure(2);
 step(PS);
 
 %Cd = c2d(C, Ts, 'zoh');
+
+%% Estimacion del area de salida
+
+
+load('practica3_ident.mat');
+
+tam = length(h);
+
+h_n1 = h(2:end) - h(1);
+h_n = h - h(1);
+u_n = u - u(1);
+
+%Este polo ya lo conocemos, sale de la transferencia, ya que no depende del
+%A_salida
+
+p_fijo = 0.00237;
+pd_fijo = exp(-p_fijo * Ts);
+
+x = [u_n(1:tam-1)];
+
+Kd = pinv(x) * (h_n1 - pd_fijo * h_n(1:tam-1));
+
+
+% En la discretizacion de ZOH
+%
+%
+% T = 1, porque muestreo a 1 segundo
+%
+% pd = exp(-p * T)
+% p = -Ln(pd)/T
+%
+%
+% Kd = int(0,T) exp(p * T) * K * dT  
+% Kd = - (K / p) * (exp(p*T) - 1)
+% K = (Kd * p) / (exp(p*T) - 1)
+ 
+
+%p1 = -log(pd_fijo)/T;
+K1 = - (Kd * p_fijo) / (exp(p_fijo*Ts) -1);
+
+%figure()
+%a2 = A * exp(-p1*t) - K1/p1;
+%plot(t,a2)
+
+
+%s = tf('s');
+%P = -K1 / (s + p1);
+
+
+
+
+
 
 
