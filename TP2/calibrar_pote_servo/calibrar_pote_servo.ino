@@ -8,8 +8,8 @@ unsigned long time1 = 0;
 unsigned long time2 = 0;
 int val = 0;
 float deg = 0;
-int OCR1A_min = 1200;
-int OCR1A_max = 5200;
+int OCR1A_min = 1100;
+int OCR1A_max = 4900;
 int OCR1A_mid = (OCR1A_max + OCR1A_min) / 2;
 int angle;
 int angle_map;
@@ -27,18 +27,16 @@ void setup() {
 void loop() {
   
   time1 = micros();
+  
   lectura_pote = analogRead(SensorPin);
 
-  //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
-  if (lectura_pote <= Lectura_pote_low)
-    lectura_pote = Lectura_pote_low;
-  if (lectura_pote >= Lectura_pote_high)
-    lectura_pote = Lectura_pote_high; 
+  angle_map = pote_2_angle();
 
-  //Mapeo del angulo del potenciometro con el angulo del servo
-  angle_map = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, -90, 90); 
-  int OCR1A_map = map(angle_map, -90, 90, OCR1A_max, OCR1A_min); 
-  OCR1A = OCR1A_map;
+  angle_2_servo(angle_map);
+
+
+
+  Serial.println(angle_map);
 
   int aux = 1000000/Frec_muestreo_pote;
   time2 = micros();
@@ -58,3 +56,23 @@ void PWM_50Hz(){
 }
 
 
+int pote_2_angle (){
+
+  int aux = analogRead(SensorPin);
+    //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
+  if (lectura_pote <= Lectura_pote_low)
+    lectura_pote = Lectura_pote_low;
+  if (lectura_pote >= Lectura_pote_high)
+    lectura_pote = Lectura_pote_high; 
+
+  int aux2 = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, -90, 90);  
+
+  return aux2;
+
+}
+
+//Retorna el valor de OICRA
+void angle_2_servo(int angle){
+
+  OCR1A = map(angle, -90, 90, OCR1A_max, OCR1A_min); 
+}
