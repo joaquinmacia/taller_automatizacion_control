@@ -9,7 +9,6 @@ clear all;
 dato1 = load ('Dato1.mat')
 
 u1 = dato1.out.d1;
-phi_medido = dato1.out.d2
 
 
 
