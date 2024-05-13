@@ -2,54 +2,57 @@ clc;
 close all;
 clear all;
 
-%load('datos_escalon_30.mat');
-%data = load('datos_escalon_30_congomita.mat');
+%Cargamos los datos del archivo de mediciones del Simulink
+dato1 = load ('Dato1.mat');
 
-
-dato1 = load ('Dato1.mat')
-
+%Extraigo los datos
 u1 = dato1.out.d1;
+phi_medido = dato1.out.d2;
+tita_medido = dato1.out.d3;
+phi_ref = dato1.out.phi_ref;
+t = dato1.out.tout;
+
+%Graficos para verificar que los datos se cargaron bien
+figure()
+plot(t, phi_ref)
+hold on
+plot(t, phi_medido-2)
+
+figure()
+plot(t, tita_medido)
 
 
-
-%n = length(data.out.d1);
-%x = 0:length(data.out.d1)-1;
-
-%figure();
-%plot(x,data.out.d1);
-%hold on;
-%plot(x,data.out.d2);
-%hold on;
-%plot(x,data.out.d3);
-%hold on;
 
 %% Estimacion planta Servo
 
-a = 1000;
-b = 175;
-c = a;
+s = tf('s');
 
+%syms a b c
 
+%a = 800;
+%b = 60;
+%c = a;
+
+phi_deg = 30;
+
+%Planta del servo de 2do orden
 P_servo = a / (s^2 + b*s + c);
 
-[y_step_servo, t2] = step(phi_deg * P_servo, t);
 
-step_servo_real = data.out.d2(499:end);
+%Recorto la señal del phi_medido para quedarme con una sola respuesta
+step_servo_real = phi_medido(757:1005)-2;
 
-duracion = length(step_servo_real)/f; %Duracion del muestreo en segundos
+%[y_step_servo, t2] = step(phi_deg * P_servo, t(1:length(step_servo_real)));
 
-t = (0:1/f:duracion-(1/f));
 
-figure()
-plot(t2, y_step_servo)
-hold on
-plot(t, step_servo_real)
+%figure()
+%plot(t2,60 + y_step_servo)
+%hold on
+%plot(t(1:length(step_servo_real)), step_servo_real)
 
 
 
 %% Estimacion Planta Pendulo
-
-s = tf('s');
 
 r = 0.1751;   %Largo del brazo [r] = m
 %r = 0.19;
