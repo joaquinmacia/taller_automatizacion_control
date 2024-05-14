@@ -29,8 +29,8 @@ s = tf('s');
 
 %syms a b c
 
-a = 800;
-b = 60;
+a = 292.2;
+b = 30.67;
 c = a;
 
 phi_deg = 30;
@@ -42,15 +42,20 @@ P_servo = a / (s^2 + b*s + c);
 %Recorto la señal del phi_medido para quedarme con una sola respuesta
 step_servo_real = phi_medido(757:1005)-2;
 
-%[y_step_servo, t2] = step(phi_deg * P_servo, t(1:length(step_servo_real)));
+[y_step_servo, t2] = step(phi_deg * P_servo, t(1:length(step_servo_real)));
 
 
-%figure()
-%plot(t2,60 + y_step_servo)
-%hold on
-%plot(t(1:length(step_servo_real)), step_servo_real)
+figure()
+plot(t2,60 + y_step_servo)
+hold on
+plot(t(1:length(step_servo_real)), step_servo_real)
 
 
+%Vectores para estimacion
+
+phi_medido_estim = double(phi_medido(757:1005)-2);
+phi_ref_estim = phi_ref(749:997);
+tita_medido_estim = double(tita_medido(749:997));
 
 %% Estimacion Planta Pendulo
 
@@ -78,10 +83,10 @@ P_total = minreal(P_servo * P_pendulo);
 % Me quedo con la respuesta al escalon de 30grados, que arranca en la
 % muestra 500
 
-step_real = data.out.d3(499:end);
+%step_real = data.out.d3(499:end);
 
 f = 100;     %Datos muestreados a 100Hz
-duracion = length(step_real)/f; %Duracion del muestreo en segundos
+%duracion = length(step_real)/f; %Duracion del muestreo en segundos
 
 t = (0:1/f:duracion-(1/f));
 
@@ -95,5 +100,7 @@ figure()
 plot(t1,y_step_deg)
 hold on
 plot(t, -step_real)
+
+
 
 
