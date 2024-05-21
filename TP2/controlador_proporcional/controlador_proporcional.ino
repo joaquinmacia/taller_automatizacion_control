@@ -29,7 +29,9 @@ float angulo_filtro_complementario_actual;
 float pi = 3.1415926;
 float angle_pendulo = 0;
 float thita_ref = 0;
-float kp = 0.05;
+float phi_ref = 90;
+float u = 0;
+float kp = 0.6;
 float accion_control_ant = 90;
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -65,7 +67,7 @@ void setup() {
   
   PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM 
   angle_2_servo(90);
-  delay(5000);
+  delay(1000);
 }
 
 void loop() {
@@ -87,12 +89,19 @@ void loop() {
 
   angle_pendulo = angle_IMU();
   float err = thita_ref - angle_pendulo;
-  float accion_control = accion_control_ant + kp * err;
-  accion_control_ant = accion_control;
-  angle_2_servo(accion_control);
-  //matlab_send(angle, angle_measure,angle_pendulo);
   
+  //Vuelve al 90° kp tiene que ser del orden de 0.1
+  float accion_control = kp * err;  
+  angle_2_servo(phi_ref + accion_control);
   
+  //El brazo vuelve a donde quiere kp = 0.05 anda perfecto
+  ///*
+  //float accion_control = accion_control_ant + kp * err;
+  //accion_control_ant = accion_control;
+  //angle_2_servo(accion_control);
+  //*/
+
+  matlab_send(accion_control, angle_measure,angle_pendulo);
 
   int aux = 1000/Frec_muestreo;
   time2 = millis();

@@ -1,3 +1,4 @@
+
 clc;
 close all;
 clear all;
@@ -17,11 +18,6 @@ figure()
 plot(t, phi_ref)
 hold on
 plot(t, phi_medido-2)
-
-figure()
-plot(t, tita_medido)
-
-
 
 %% Estimacion planta Servo
 
@@ -45,10 +41,12 @@ step_servo_real = phi_medido(757:1005)-2;
 [y_step_servo, t2] = step(phi_deg * P_servo, t(1:length(step_servo_real)));
 
 
-figure()
-plot(t2,60 + y_step_servo)
+figure();
+plot(t2,60 + y_step_servo);
 hold on
-plot(t(1:length(step_servo_real)), step_servo_real)
+plot(t(1:length(step_servo_real)), step_servo_real);
+hold off
+legend('Servo modelado', 'Servo medido');
 
 
 %Vectores para estimacion
@@ -58,49 +56,114 @@ phi_ref_estim = phi_ref(749:997);
 tita_medido_estim = double(tita_medido(749:997));
 
 %% Estimacion Planta Pendulo
+close all;
 
-r = 0.1751;   %Largo del brazo [r] = m
-%r = 0.19;
+%Cargamos los datos del archivo de mediciones del Simulink
+dato1 = load ('escalon30.mat');
 
-l = 0.2053;   %Largo del pendulo [l] = m
-%l = 0.22;
+inicio = 755;%1875;
+final = inicio + 300;
 
-m = 0.05;   %Masa del pendulo [m] = Kg
-%m = 0.03;
+%Extraigo los datos
+u2 = dato1.out.d1(inicio:final);
+phi_medido2 = double(dato1.out.d2(inicio:final) - 2);
+phi_medido2(37:end) = 60;
+tita_medido2 = double(dato1.out.d3(inicio:final));
+phi_ref2 = dato1.out.phi_ref(inicio:final);
+t2 = dato1.out.tout(inicio:final) - 14.9800;
 
-%gamma = 0.15;%Coef rozamiento
-gamma = 0.15;
+figure(8);
+plot(t2,phi_medido2);
+hold on;
+plot(t2,phi_ref2);
+%hold on;
+%plot(step(-30 * P_servo) + 90);
 
-g = 9.8;    %Gravedad [g] = m/s^2
-w0 = g/l;
-Q = w0 * (m*l/gamma);
+% Gpendulo = tf([0.95 0 0],[1 b 12.5]);
+% figure();
+% plot(t2,tita_medido2);
+% hold on;
+% step(-30 * P_servo * Gpendulo, t2);
 
-%Defino la planta modelada
+% 
+% r = 0.1751;   %Largo del brazo [r] = m
+% %r = 0.19;
+% 
+% l = 0.2053;   %Largo del pendulo [l] = m
+% %l = 0.22;
+% 
+% m = 0.05;   %Masa del pendulo [m] = Kg
+% %m = 0.03;
+% 
+% %gamma = 0.15;%Coef rozamiento
+% gamma = 0.15;
+% 
+% g = 9.8;    %Gravedad [g] = m/s^2
+% w0 = g/l;
+% Q = w0 * (m*l/gamma);
+% 
+% %Defino la planta modelada
+% 
+% P_pendulo = ((r/l)*s^2) / (s^2 + (w0/Q)*s + w0^2); 
+% 
+% P_total = minreal(P_servo * P_pendulo);
+% % Me quedo con la respuesta al escalon de 30grados, que arranca en la
+% % muestra 500
+% 
+% %step_real = data.out.d3(499:end);
+% 
+% f = 100;     %Datos muestreados a 100Hz
+% %duracion = length(step_real)/f; %Duracion del muestreo en segundos
+% 
+% phi_deg = 30;
+% 
+% %Calculo rta al escalon de 30 grados
+% [y_step_deg, t1] = step(phi_deg * P_total, t);
+% 
+% 
+% figure()
+% plot(t1,y_step_deg)
+% hold on
+% plot(t, -step_real)
+%%%
 
-P_pendulo = ((r/l)*s^2) / (s^2 + (w0/Q)*s + w0^2); 
+% Definir el rango de valores para b
+b_values = linspace(0.8, 0.9, 5);  % Ajusta los límites y el número de valores según sea necesario
 
-P_total = minreal(P_servo * P_pendulo);
-% Me quedo con la respuesta al escalon de 30grados, que arranca en la
-% muestra 500
+% Crear una nueva figura
+figure();
+plot(t2, tita_medido2, 'k', 'LineWidth', 2); % Plotear los datos medidos
+hold on;
 
-%step_real = data.out.d3(499:end);
+% Iterar sobre los valores de b y plotear la respuesta del sistema
+for b = b_values
+    Gpendulo = tf([0.8 0 0], [1 0.9 12.5]);
+    step_response = step(-30 * P_servo * Gpendulo, t2 - 0.1);
+    plot(t2, step_response, 'DisplayName', ['b = ', num2str(b)]);
+end
+Gpendulo = tf([0.8 0 0], [1 0.9 12.5]);
 
-f = 100;     %Datos muestreados a 100Hz
-%duracion = length(step_real)/f; %Duracion del muestreo en segundos
+%Gpendulo2 = tf1;
+% Configurar el gráfico
+title('Respuestas del sistema para diferentes valores de b');
+xlabel('Tiempo (s)');
+ylabel('Respuesta');
+legend('show');
+grid on;
+hold off;
 
-t = (0:1/f:duracion-(1/f));
+figure(11);
+plot(step(-30 * P_servo * Gpendulo,t2 - 0.1));
+hold on;
+plot(tita_medido2, 'k', 'LineWidth', 2); % Plotear los datos medidos
+hold off;
+%% Diseño de controlador
 
-phi_deg = 30;
+P = Gpendulo * P_servo;
 
-%Calculo rta al escalon de 30 grados
-[y_step_deg, t1] = step(phi_deg * P_total, t);
-
-
-figure()
-plot(t1,y_step_deg)
-hold on
-plot(t, -step_real)
-
-
-
+bode(P);
+k = 0.1;
+C = k;
+L = P * C;
+bode(L);
 

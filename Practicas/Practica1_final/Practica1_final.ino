@@ -2,8 +2,8 @@
 #define SensorPin A0
 #define Lectura_pote_low  146
 #define Lectura_pote_high 862
-#define Frec_muestreo_pote 100
 
+int Frec_muestreo_pote = 100;
 unsigned long time1 = 0;
 unsigned long time2 = 0;
 int val = 0;
@@ -26,7 +26,7 @@ void setup() {
 
 void loop() {
   
-  time1 = micros();
+  time1 = millis();
   lectura_pote = analogRead(SensorPin);
 
   //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
@@ -40,10 +40,10 @@ void loop() {
   int OCR1A_map = map(angle_map, -90, 90, OCR1A_max, OCR1A_min); 
   OCR1A = OCR1A_map;
 
-  int aux = 1000000/Frec_muestreo_pote;
-  time2 = micros();
+  int aux = 1000/Frec_muestreo_pote;
+  time2 = millis();
 
-  delayMicroseconds(aux - (time2 - time1));   //Delay necesario para el muestreo a la frecuencia Frec_muestreo_pote
+  delay(aux - (time2 - time1));   //Delay necesario para el muestreo a la frecuencia Frec_muestreo_pote
 }
 
 
@@ -56,5 +56,6 @@ void PWM_50Hz(){
   TCCR1B = (1 << CS11) | (1 << WGM13) | (1 << WGM12) ;
   ICR1 = 39999;
 }
+
 
 

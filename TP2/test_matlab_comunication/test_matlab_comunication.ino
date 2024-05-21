@@ -15,7 +15,6 @@ int val = 0;
 float deg = 0;
 int OCR1A_min = 1100;
 int OCR1A_max = 4900;
-int OCR1A_mid = (OCR1A_max + OCR1A_min) / 2;
 float angle;
 float angle_map;
 int lectura_pote;
@@ -31,8 +30,8 @@ float pi = 3.1415926;
 float angle_pendulo = 0;
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
-float offset_aceleracion_Y = 0.02;
-float offset_aceleracion_Z = 9.8 - 7.86;
+float offset_aceleracion_Y = 0.27;
+float offset_aceleracion_Z = 9.8 - 7.9;
 
 Adafruit_MPU6050 mpu;
 
@@ -62,11 +61,7 @@ void setup() {
   angulo_filtro_complementario_anterior = 0;
   
   PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM 
-  angle = 0;
-  angle_2_servo(angle);
-  float angle_measure = pote_2_angle();
-  matlab_send(angle, angle_measure,angle_pendulo);
-  delay(1000);
+  delay(100);
 }
 
 void loop() {
@@ -87,12 +82,13 @@ void loop() {
   float angle_measure = pote_2_angle();
 
   angle_pendulo = angle_IMU();
-  //Serial.println(angle_measure);
+  //Serial.println(angle_pendulo);
+  
   matlab_send(angle, angle_measure,angle_pendulo);
-
+  
   int aux = 1000/Frec_muestreo;
   time2 = millis();
-
+  
   delay(aux - (time2 - time1));   //Delay necesario para el muestreo a la frecuencia Frec_muestreo
 }
 
@@ -111,14 +107,13 @@ void PWM_50Hz(){
 float pote_2_angle (){
 
   float lectura_pote = analogRead(SensorPin);
-  Serial.println(lectura_pote);
-    //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
-  if (lectura_pote <= Lectura_pote_low)
-    lectura_pote = Lectura_pote_low;
-  if (lectura_pote >= Lectura_pote_high)
-    lectura_pote = Lectura_pote_high; 
+      //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
+  //if (lectura_pote <= Lectura_pote_low)
+    //lectura_pote = Lectura_pote_low;
+  //if (lectura_pote >= Lectura_pote_high)
+    //lectura_pote = Lectura_pote_high; 
 
-  float aux2 = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, -90, 90);  
+  float aux2 = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, 0, 180);  
 
   return aux2;
 
@@ -126,8 +121,14 @@ float pote_2_angle (){
 
 //Retorna el valor de OICRA
 void angle_2_servo(float angle){
+  if (angle <= 30){
+      angle = 30;
+    }
+    else if (angle >=150){
+      angle = 150;
+    }
 
-  OCR1A = map(angle, -90, 90, OCR1A_max, OCR1A_min); 
+  OCR1A = map(angle, 0, 180, OCR1A_max, OCR1A_min); 
 }
 
 void matlab_send(float dato1, float dato2, float dato3){
@@ -146,7 +147,7 @@ float angle_IMU(){
 
   angulo_x0_acel = atan2(a.acceleration.y + offset_aceleracion_Y, a.acceleration.z + offset_aceleracion_Z);
 
-  angulo_filtro_complementario_actual = (1 - alpha) * (angulo_filtro_complementario_anterior + g.gyro.x * 1/(float)(Frec_muestreo)) + alpha * angulo_x0_acel;
+  angulo_filtro_complementario_actual = alpha * (angulo_filtro_complementario_anterior + g.gyro.x * 1/(float)(Frec_muestreo)) + (1 - alpha) * angulo_x0_acel;
   angulo_filtro_complementario_anterior = angulo_filtro_complementario_actual;
 
   return angulo_filtro_complementario_deg = (angulo_filtro_complementario_actual * 180) / pi;

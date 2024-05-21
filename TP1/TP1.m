@@ -70,6 +70,7 @@ C_eval = eval(C);
 D_eval = eval(D);
 
 P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
+P
 bode(P);
 legendInfo{i} = ['h0 = ' num2str(h0_vec(i))];
 

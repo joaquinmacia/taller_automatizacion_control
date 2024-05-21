@@ -52,7 +52,7 @@ P = zpk(ss(A_eval,B_eval,C_eval,D_eval));
 Ts = 1;
 %Pap = zpk([4/Ts], [-4/Ts], -1);
 
-C = zpk([-0.00237], [0], -db2mag(10)); %Este anda
+C = zpk([-0.00237], [0], -db2mag(10)); %Este andaH
 
 L = P * C; 
 S = 1 / (1+L);

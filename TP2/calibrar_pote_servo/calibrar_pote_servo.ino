@@ -1,7 +1,7 @@
 #define PWMPin 9 
 #define SensorPin A0
-#define Lectura_pote_low  146
-#define Lectura_pote_high 862
+#define Lectura_pote_low  145
+#define Lectura_pote_high 868
 #define Frec_muestreo_pote 100
 
 unsigned long time1 = 0;
@@ -9,7 +9,7 @@ unsigned long time2 = 0;
 int val = 0;
 float deg = 0;
 int OCR1A_min = 1100;
-int OCR1A_max = 4900;
+int OCR1A_max = 5000;
 int OCR1A_mid = (OCR1A_max + OCR1A_min) / 2;
 int angle;
 int angle_map;
@@ -21,7 +21,8 @@ void setup() {
 
   TCNT1 = 0;
   
-  PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM 
+  PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM
+  angle_2_servo(-30);
 }
 
 void loop() {
@@ -32,11 +33,11 @@ void loop() {
 
   angle_map = pote_2_angle();
 
-  angle_2_servo(angle_map);
-
-
+  //angle_2_servo(angle_map);
 
   Serial.println(angle_map);
+
+  //Serial.println(lectura_pote);
 
   int aux = 1000000/Frec_muestreo_pote;
   time2 = micros();
@@ -58,12 +59,12 @@ void PWM_50Hz(){
 
 int pote_2_angle (){
 
-  int aux = analogRead(SensorPin);
+  int lectura_pote = analogRead(SensorPin);
     //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
-  if (lectura_pote <= Lectura_pote_low)
-    lectura_pote = Lectura_pote_low;
-  if (lectura_pote >= Lectura_pote_high)
-    lectura_pote = Lectura_pote_high; 
+  //if (lectura_pote <= Lectura_pote_low)
+    //lectura_pote = Lectura_pote_low;
+  //if (lectura_pote >= Lectura_pote_high)
+    //lectura_pote = Lectura_pote_high; 
 
   int aux2 = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, -90, 90);  
 

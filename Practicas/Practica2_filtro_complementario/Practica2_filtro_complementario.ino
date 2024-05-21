@@ -51,7 +51,7 @@ void setup(void) {
 
 void loop() {
 	
-  time1 = micros();
+  time1 = millis();
 
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
@@ -69,9 +69,9 @@ void loop() {
   }
   
   int aux = 1000000/Frec_muestreo;
-  time2 = micros();
+  time2 = millis();
   contador++;
-  delayMicroseconds(aux - (time2 - time1));  
+  delay(aux - (time2 - time1));  
 
 }
 

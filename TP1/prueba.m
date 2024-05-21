@@ -22,7 +22,8 @@ D = jacobian(y, u);
 
 %%Puntos de equilibrio
 h = h0;
-u = Qi / (A_sal * sqrt(2*g*h0));
+u = u0;
+%u = Qi / (A_sal * sqrt(2*g*h0));
 
 %Evaluo las matrices en el punto de equilibrio
 
@@ -37,3 +38,29 @@ I = eye(size(A));
 % Calcular la función de transferencia
 H = C_eval * inv(s*I - A_eval) * B_eval + D_eval;
 H_simp = simplify(H);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%((s + (3*L^2*Qi)/(2*h0*(L_h - L_l)^2*(3*h0^2 + (3*L^2*L_l^2)/(L_h - L_l)^2 + (6*L*L_l*h0)/(L_h - L_l))))*(L_h - L_l)^2*(3*h0^2 + (3*L^2*L_l^2)/(L_h - L_l)^2 + (6*L*L_l*h0)/(L_h - L_l))
+
+
+
+
+
+
+
+
+
+
