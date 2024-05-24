@@ -31,8 +31,14 @@ float angle_pendulo = 0;
 float thita_ref = 0;
 float phi_ref = 90;
 float u = 0;
-float kp = 0.05;
 float accion_control_ant = 90;
+float error[2] = {0,0};
+float D[2] = {0,0};
+float I[2] = {0,0};
+float kp = 0.6;
+float ki = 10;
+float kd = 0;
+float T = 0.01;
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
 float offset_aceleracion_Y = 0.27;
@@ -74,31 +80,27 @@ void loop() {
   
   time1 = millis();
   
-  //Serial.println("Por favor, ingrese un Angulo:");
-  
-  //Esperar a que haya datos disponibles en el puerto serie
-  //while (Serial.available() > 0) {
-    //angle = Serial.read();
-  //}
-  
-  // Leer el número ingresado por el usuario
-  //angle = Serial.parseInt();
-  
-
+  //Mediciones de los angulos
   float angle_measure = pote_2_angle();
-
   angle_pendulo = angle_IMU();
-  float err = thita_ref - angle_pendulo;
 
-  u = kp * err;
-  angle_2_servo(phi_ref + u);
+  //Calculo el error y actualizo el anterior
+  error[1] = error[0];
+  error[0] = thita_ref - angle_pendulo;  
 
-  // C = - k * (s + p)  /  s   Controlador continuo
-  err = h - href;
-  u = u_ant - k * err * (1 + T * p / 2) + k * err_ant * (1 - T * p / 2);
-  u_ant = u;
-  err_ant = err;
+ //Calculo y actualizo valores de las derivadas e integrales;
+  float swap = I[0];
+  I[0] = I[1] + T/2 * error[0] + T/2 * error[1];
+  I[1] = swap;
+  swap = D[0];
+  D[0] = 2 * (error[0] - error[1])/T - D[1];
+  D[1] = swap;
+
+  //PID por Tustin
+  u = kp * error[0] + ki * (I[1] + T/2 * error[0] + T/2 * error[1]) + kd * (2 * (error[0] - error[1])/T - D[1]);
   
+  //Aplico la accion de control
+  angle_2_servo(phi_ref + u);
 
   int aux = 1000/Frec_muestreo;
   time2 = millis();

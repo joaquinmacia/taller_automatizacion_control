@@ -1,4 +1,3 @@
-
 clc;
 close all;
 clear all;
@@ -18,6 +17,9 @@ figure()
 plot(t, phi_ref)
 hold on
 plot(t, phi_medido-2)
+
+
+
 
 %% Estimacion planta Servo
 
@@ -157,13 +159,80 @@ plot(step(-30 * P_servo * Gpendulo,t2 - 0.1));
 hold on;
 plot(tita_medido2, 'k', 'LineWidth', 2); % Plotear los datos medidos
 hold off;
-%% Diseño de controlador
 
-P = Gpendulo * P_servo;
+%% Respuesta escalon 30 con tuerca
 
-bode(P);
-k = 0.1;
-C = k;
-L = P * C;
+%Cargamos los datos del archivo de mediciones del Simulink
+dato1 = load ('escalon30_con_tuerca.mat');
+
+%Extraigo los datos
+u1 = double(dato1.out.d1(1401:1700));
+phi_medido = double(dato1.out.d2(1401:1700));
+tita_medido_ok = double(dato1.out.d3(1401:1700));
+phi_ref = double(dato1.out.phi_ref(1401:1700));
+t = double(dato1.out.tout(1:300));
+datos_medidos = [t tita_medido_ok];
+
+%Gpendulo = tf([0.7 0 0], [1 2.613 65.51]);
+Gpendulo = tf([0.7 0 0], [1 2.613 65]);
+
+%Graficos para verificar que los datos se cargaron bien
+figure()
+plot(phi_ref);
+
+figure()
+plot(t,step(30 * P_servo * Gpendulo,t), 'LineWidth', 2);
+hold on;
+plot(t(1:end - 7),tita_medido_ok(8:end), 'LineWidth', 2);
+legend({'Respuesta planta modelada', 'Respuesta medida'}, 'Location', 'best');
+%plot(t,tita_medido_ok, 'LineWidth', 2)
+
+
+%% Respuesta impulso
+dato1 = load ('Respuesta_impulso_P.mat');
+%Extraigo los datos
+u1 = double(dato1.out.d1(1140:1350));
+phi_medido = double(dato1.out.d2);
+tita_medido = double(dato1.out.d3(1140:1350));
+phi_ref = double(dato1.out.phi_ref);
+t = double(dato1.out.tout(1140:1350));
+accion_de_control = [(t-11.39) u1];
+data2simulink = [(t-11.39) tita_medido];
+%Gpendulo = tf([0.7 0 0], [1 2.613 65.51]);
+Gpendulo = tf([0.7 0 0], [1 2.613 65]);
+
+figure()
+plot(t - 9.39,tita_medido);
+
+%% Diseño de controlador PI
+P = P_servo * Gpendulo;
+
+kp = 0.6;
+ki = 5;
+
+C_pi = zpk([-ki/kp],[0],1/kp);
+
+L = P * C_pi;
+Ts = 0.01;
+Cd_pi = c2d(C_pi,Ts,'tustin'); 
 bode(L);
 
+%% Diseño controlador P
+kp = 0.6;
+C_p = zpk([],[],kp);
+Ts = 0.01;
+Cd_p = c2d(C_p,Ts,'tustin');
+bode(P * C_p);
+%% Diseño de controlador PD
+
+P = P_servo * Gpendulo;
+
+kp = 240;
+kd = 1.27;
+
+C_pd = zpk([-kp/kd],[],kd);
+
+L = P * C_pd;
+Ts = 0.01;
+Cd_pd = c2d(C_pd,Ts,'tustin'); 
+%bode(L);
