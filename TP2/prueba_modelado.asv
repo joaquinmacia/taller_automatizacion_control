@@ -188,7 +188,7 @@ legend({'Respuesta planta modelada', 'Respuesta medida'}, 'Location', 'best');
 %plot(t,tita_medido_ok, 'LineWidth', 2)
 
 
-%% Respuesta impulso P
+%% Respuesta impulso
 dato1 = load ('Respuesta_impulso_P.mat');
 %Extraigo los datos
 u1 = double(dato1.out.d1(1140:1350));
@@ -236,19 +236,3 @@ L = P * C_pd;
 Ts = 0.01;
 Cd_pd = c2d(C_pd,Ts,'tustin'); 
 %bode(L);
-
-%% Respuesta impulso PD
-dato1 = load ('impulso_controladorPD.mat');
-%Extraigo los datos
-u1 = double(dato1.out.d1(290:550));
-phi_medido = double(dato1.out.d2(290:550));
-tita_medido = double(dato1.out.d3(290:550));
-phi_ref = double(dato1.out.phi_ref(290:550));
-t = double(dato1.out.tout(290:550));
-accion_de_control = [t-2.9 u1];
-data2simulink = [t-2.9 tita_medido];
-
-
-
-figure()
-plot(t-2.9,u1);

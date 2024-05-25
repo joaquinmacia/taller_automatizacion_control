@@ -35,9 +35,9 @@ float accion_control_ant = 90;
 float error[2] = {0,0};
 float D[2] = {0,0};
 float I[2] = {0,0};
-float kp = 0.6;
-float ki = 10;
-float kd = 0;
+float kp = 0.6; //0.6
+float ki = 0; //10
+float kd = 0.0001;
 float T = 0.01;
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -105,6 +105,9 @@ void loop() {
   int aux = 1000/Frec_muestreo;
   time2 = millis();
   
+
+  matlab_send(u, angle_measure, angle_pendulo);
+
   delay(aux - (time2 - time1));   //Delay necesario para el muestreo a la frecuencia Frec_muestreo
 }
 
@@ -155,6 +158,7 @@ void matlab_send(float dato1, float dato2, float dato3){
   b = (byte *) &dato3;
   Serial.write(b,4);
 }
+
 
 float angle_IMU(){
   sensors_event_t a, g, temp;
