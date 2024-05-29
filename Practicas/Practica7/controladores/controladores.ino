@@ -30,14 +30,27 @@ float pi = 3.1415926;
 float angle_pendulo = 0;
 float thita_ref = 0;
 float phi_ref = 90;
+float thita_control = 0;
 float u = 0;
 float accion_control_ant = 90;
 float error[2] = {0,0};
 float D[2] = {0,0};
 float I[2] = {0,0};
-float kp = 0.19; //0.6
-float ki = 0; //10
-float kd = 0.0431;//0.0001
+float error2[2] = {0,0};
+float D2[2] = {0,0};
+float I2[2] = {0,0};
+
+//Controlador proporcional kp = 0.6
+//Controlador proporcional integrativo kp = 0.6 ki = 10
+//Controlador proporcional derivativo kp = 0.6 ki = 0.0001
+float kp = 0.6; 
+float ki = 0;
+float kd = 0.0001;
+float kp2 = 0.6; 
+float ki2 = 0;
+float kd2 = 0.0001;
+
+
 float T = 0.01;
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -84,12 +97,28 @@ void loop() {
   float angle_measure = pote_2_angle();
   angle_pendulo = angle_IMU();
 
+  //Controlador 2 
+  //Calculo el error y actualizo el anterior
+  error2[1] = error[0];
+  error2[0] = phi_ref - angle_measure;
+
+  float swap = I2[0];
+  I2[0] = I2[1] + T/2 * error2[0] + T/2 * error2[1];
+  I2[1] = swap;
+  swap = D2[0];
+  D2[0] = 2 * (error2[0] - error2[1])/T - D2[1];
+  D2[1] = swap;
+
+  //PID por Tustin
+  thita_control = kp2 * error2[0] + ki2 * (I2[1] + T/2 * error2[0] + T/2 * error2[1]) + kd2 * (2 * (error2[0] - error2[1])/T - D2[1]); 
+
+  //Controlador 1
   //Calculo el error y actualizo el anterior
   error[1] = error[0];
-  error[0] = thita_ref - angle_pendulo;  
+  error[0] = thita_control - angle_pendulo;
 
  //Calculo y actualizo valores de las derivadas e integrales;
-  float swap = I[0];
+  swap = I[0];
   I[0] = I[1] + T/2 * error[0] + T/2 * error[1];
   I[1] = swap;
   swap = D[0];

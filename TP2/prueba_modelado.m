@@ -224,18 +224,29 @@ Ts = 0.01;
 Cd_p = c2d(C_p,Ts,'tustin');
 bode(P * C_p);
 %% Diseño de controlador PD
-
+close all;
 P = P_servo * Gpendulo;
 
 kp = 0.6;
 kd = 0.0001;%0.0001
 
-C_pd = zpk([-kp/kd],[],kd);
+%C_pd = zpk([-kp/kd],[],kd);
+
+C_pd = zpk([-3],[],0.0631);
 
 L = P * C_pd;
 Ts = 0.01;
 Cd_pd = c2d(C_pd,Ts,'tustin'); 
-%bode(L);
+
+figure()
+bode(P)
+
+figure()
+bode(L)
+
+
+%figure()
+%pzmap(C_pd)
 
 %% Respuesta impulso PD
 dato1 = load ('impulso_controladorPD.mat');
@@ -252,3 +263,6 @@ data2simulink = [t-2.9 tita_medido];
 
 figure()
 plot(t-2.9,u1);
+
+
+
