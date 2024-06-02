@@ -20,12 +20,14 @@ y = C * x;
 
 
 %% Observador de Luenberger completo
-% x_k = [tita tita_p phi phi_p] - Observo las 4 variables de estado
-% y_k = [tita phi]              - Mido solo los angulos
+% x_k = [tita tita_p phi phi_p] Observo las 4 variables de estado
+% y_k = [tita phi]              M
 
 % Discretizacion ZOH
 Ad = eye(4) + A .* T;
+
 Bd = B .* T;
+
 Cd = C;
 
 
