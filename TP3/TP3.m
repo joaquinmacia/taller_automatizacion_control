@@ -28,5 +28,11 @@ Ad = eye(4) + A .* T;
 Bd = B .* T;
 Cd = C;
 
+polos = [0.1, 0.2, 0.3, 0.4];
 
+L = place(Ad', Cd', polos);
+
+test = Ad - (L' * Cd);
+ 
+eig(test)
 

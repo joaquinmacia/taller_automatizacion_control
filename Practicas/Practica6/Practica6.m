@@ -26,7 +26,7 @@ polos = [0.5, 0.6];
 
 L = place(Ad', Cd', polos);
 
-
+test = Ad - (L' .* Cd);
 
 %% Si Xk = [tita_k, w_k, b_k]'
 
