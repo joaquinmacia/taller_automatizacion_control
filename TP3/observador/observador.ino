@@ -29,13 +29,24 @@ float angulo_filtro_complementario_actual;
 float pi = 3.1415926;
 float angle_pendulo = 0;
 sensors_event_t a, g, temp;
+float thita_medido = 0;
+float phi_medido = 0;
+float dthita_medido = 0; 
+
+
+//Observador
 float thita_next = 0;
 float thita_act = 0;
-float w_act = 0;
-float w_next = 0;
-float Ad[2][2] = {{1, 0.02},{-1.2250, 0.9475}};
-float Cd[2] = {1,0};
-float L[2] = {0.8475,6.5503};
+float dthita_next = 0;
+float dthita_act = 0;
+float phi_next = 0;
+float phi_act = 0;
+float dphi_next = 0;
+float dphi_act = 0;
+
+float Ad[4][4] = {{1, 0.02},{-1.2250, 0.9475}};
+float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
+float L[4][2] = {0.8475,6.5503};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
 float offset_aceleracion_Y = 0.27;
@@ -72,15 +83,28 @@ void setup() {
 void loop() {
   
   time1 = millis();
+  while (Serial.available() > 0) {
+    phi_ref = Serial.read();
+  }
+  angle_2_servo(phi_ref);
 
-  float thita_medido = angle_IMU();  
-  float w = (g.gyro.x) * 180 / pi;    
-  thita_next = Ad[0][0] * thita_act + Ad[0][1] * w_act + L[0] * (thita_medido - thita_act);
-  w_next = Ad[1][0] * thita_act + Ad[1][1] * w_act + L[1] * (thita_medido - thita_act);
-  w_act = w_next;  
+  thita_medido = angle_IMU();  
+  phi_medido = pote_2_angle();
+  dthita_medido = (g.gyro.x) * 180 / pi; 
+
+  //Calcula los valores actuales
+  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + b[0] * phi_ref;
+  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + b[1] * phi_ref;
+  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + b[2] * phi_ref;  
+  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + b[3] * phi_ref;
+
+  //Actualiza los valores
   thita_act = thita_next;
-
-  matlab_send(thita_medido, thita_next,w_next,w);
+  dthita_act = dthita_next;
+  phi_act = phi_next;
+  dphi_act = dphi_next;
+  
+  matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,phi_ref);
   
   int aux = 1000/Frec_muestreo;
   time2 = millis();
@@ -90,7 +114,7 @@ void loop() {
 
 
 
-void matlab_send(float dato1, float dato2, float dato3,float dato4){
+void matlab_send(float dato1, float dato2, float dato3,float dato4,float dato5,float dato6,float dato7,float dato8){
   Serial.write("abcd");
   byte * b = (byte *) &dato1;
   Serial.write(b,4);
@@ -99,6 +123,14 @@ void matlab_send(float dato1, float dato2, float dato3,float dato4){
   b = (byte *) &dato3;
   Serial.write(b,4);
   b = (byte *) &dato4;
+  Serial.write(b,4);
+  b = (byte *) &dato5;
+  Serial.write(b,4);
+  b = (byte *) &dato6;
+  Serial.write(b,4);
+  b = (byte *) &dato7;
+  Serial.write(b,4);
+  b = (byte *) &dato8;
   Serial.write(b,4);
 }
 
@@ -112,4 +144,19 @@ float angle_IMU(){
   angulo_filtro_complementario_anterior = angulo_filtro_complementario_actual;
 
   return angulo_filtro_complementario_deg = (angulo_filtro_complementario_actual * 180) / pi;
+}
+
+float pote_2_angle (){
+
+  float lectura_pote = analogRead(SensorPin);
+      //Se limita el rango de valores del potenciometro para un rango de entre -90° y 90°
+  //if (lectura_pote <= Lectura_pote_low)
+    //lectura_pote = Lectura_pote_low;
+  //if (lectura_pote >= Lectura_pote_high)
+    //lectura_pote = Lectura_pote_high; 
+
+  float aux2 = map(lectura_pote, Lectura_pote_low, Lectura_pote_high, 0, 180);  
+
+  return aux2;
+
 }
