@@ -33,6 +33,7 @@ float thita_medido = 0;
 float phi_medido = 0;
 float dthita_medido = 0; 
 float phi_ref = 90;
+float thita_ref = 0;
 
 //Observador
 float thita_next = 0;
@@ -51,6 +52,7 @@ float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
 float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
 float K[4] = {-0.9757, 0.0129, 0.7346, -0.0115};
+float F[2] = {0.000, -0.2654};
 float Bd[4] = {0, 2.0454, 0, 2.9220};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -114,11 +116,10 @@ void loop() {
   dphi_act = dphi_next;
   
   //Calculo accion control
-  //u_act = K[0]*thita_medido + K[1]*dthita_medido + K[2]*(phi_medido - phi_ref) + K[3]*dphi_next;
-  u_act = K[0]*thita_next + K[1]*dthita_next + K[2]*(phi_next - phi_ref) + K[3]*dphi_next;
+  u_act = (F[0] * thita_ref + F[1] * phi_ref) - (K[0]*thita_next + K[1]*dthita_next + K[2]*phi_next + K[3]*dphi_next);
   
   //Aplico accion de control
-  angle_2_servo(phi_ref + u_act);
+  angle_2_servo(u_act);
 
   //matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,phi_ref);
   

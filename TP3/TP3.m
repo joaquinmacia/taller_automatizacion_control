@@ -38,8 +38,20 @@ eig(test)
 
 %% Realimentacion de estados
 
-polos2 = [0.9, 0.91, 0.92, 0.93];
+polos2 = [0.90, 0.91, 0.92, 0.93];
 
 K = place(Ad, -Bd, polos2);
 
 test2 = eig(Ad + Bd*K)
+
+
+
+%% Matriz de Feedforward
+
+
+F = pinv(C * pinv((eye(4)-(Ad + Bd*K))) * Bd);
+F = pinv(C * pinv(eye(size(Ad)) - (Ad + Bd * K)) * Bd);
+
+
+
+
