@@ -7,9 +7,9 @@ close all;
 syms tita tita_p phi phi_p phi_ref;
 T = 0.01;
 
-A = [0 1 0 0; -65 -2.613 0 0.7; 0 0 0 1; 0 0 -292.2 -30.67];
+A = [0 1 0 0; -65 -2.613 -204.54 -21.469; 0 0 0 1; 0 0 -292.2 -30.67];
 
-B = [0; 0; 0; 292.2];
+B = [0; 204.54; 0; 292.2];
 
 C = [1 0 0 0; 0 0 1 0];
 
@@ -28,7 +28,7 @@ Ad = eye(4) + A .* T;
 Bd = B .* T;
 Cd = C;
 
-polos = [0.1, 0.2, 0.3, 0.4];
+polos = [0.2467, 0.2467, 0.2117, 0.2117];
 
 L = place(Ad', Cd', polos);
 
@@ -36,3 +36,10 @@ test = Ad - (L' * Cd);
  
 eig(test)
 
+%% Realimentacion de estados
+
+polos2 = [0.9, 0.91, 0.92, 0.93];
+
+K = place(Ad, -Bd, polos2);
+
+test2 = eig(Ad + Bd*K)
