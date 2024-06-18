@@ -72,7 +72,9 @@ polos4 = [0.94 0.95];
 
 %H = place(A_integral, B_integral, polos3);
 
-%H = place(Ad, -Bd, polos3);
+%H = place(Ad, -Bd, polos3)
+
+
 
 %H = place(eye(size(Ad)), zeros(size(Bd')), polos4);
 
