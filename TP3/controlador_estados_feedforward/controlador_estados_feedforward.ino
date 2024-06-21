@@ -87,7 +87,8 @@ void setup() {
 	mpu.setFilterBandwidth(MPU6050_BAND_10_HZ);
   angulo_filtro_complementario_anterior = 0;
   
-  PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM 
+  PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM
+  autocalibracion_IMU(); 
   angle_2_servo(90);
   delay(1000);
 }
@@ -95,20 +96,20 @@ void setup() {
 void loop() {
   
   time1 = millis();
-  /*
+  
   while (Serial.available() > 0) {
-    phi_ref = Serial.read();
-  }*/
+    phi_ref = Serial.read() - 90;
+  }
   
   thita_medido = angle_IMU();  
   phi_medido = pote_2_angle();
   dthita_medido = (g.gyro.x) * 180 / pi; 
 
   //Calcula los valores actuales
-  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * u_act;
-  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * u_act;
-  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * u_act;  
-  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * u_act;
+  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * phi_eq;
+  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * phi_eq;
+  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * phi_eq;  
+  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * phi_eq;
 
   //Actualiza los valores
   thita_act = thita_next;
@@ -122,7 +123,7 @@ void loop() {
   //Aplico accion de control
   angle_2_servo(phi_eq + u_act);
 
-  //matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,phi_ref);
+  matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,u_act);
   
   int aux = 1000/Frec_muestreo;
   time2 = millis();
@@ -200,7 +201,7 @@ void PWM_50Hz(){
   ICR1 = 39999;
 }
 
-float autocalibracion_IMU(){
+void autocalibracion_IMU(){
   
   mpu.getEvent(&a, &g, &temp);
   float aux_z=0;

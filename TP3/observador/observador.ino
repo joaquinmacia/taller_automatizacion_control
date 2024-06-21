@@ -80,6 +80,9 @@ void setup() {
   angulo_filtro_complementario_anterior = 0;
   
   PWM_50Hz();   //Configuracion e inicializacion del timer 1 para generar PWM 
+
+  autocalibracion_IMU();
+
   angle_2_servo(90);
   delay(1000);
 }
@@ -87,6 +90,7 @@ void setup() {
 void loop() {
   
   time1 = millis();
+  
   while (Serial.available() > 0) {
     phi_ref = Serial.read();
   }
@@ -186,7 +190,7 @@ void PWM_50Hz(){
   ICR1 = 39999;
 }
 
-float autocalibracion_IMU(){
+void autocalibracion_IMU(){
   
   mpu.getEvent(&a, &g, &temp);
   float aux_z=0;

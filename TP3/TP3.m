@@ -53,6 +53,7 @@ F = pinv(Cd * inv(eye(size(Ad)) - (Ad + Bd * K)) * Bd);
 %F = pinv(Cd * inv(eye(size(Ad)) - (Ad - Bd * K)) * Bd);
 
 %% Controlador con accion integral
+
 Cdaux = [0,0,1,0];
 % Crear la matriz identidad del tamaño apropiado
 I = eye(size(Cdaux, 1));
@@ -69,15 +70,13 @@ B_integral = [
 ];
 
 polos3 = [polos2 0.95];
-polos4 = [0.94 0.95];
 
 H = place(A_integral, -B_integral, polos3);
 
-%H = -0.01;
 test3 = eig(A_integral + B_integral * H);
-%H = place(Ad, -Bd, polos3);
+
 disp(test3)
-%H = place(eye(size(Ad)), zeros(size(Bd')), polos4);
+
 
 
 
