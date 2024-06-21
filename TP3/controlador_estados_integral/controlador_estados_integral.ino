@@ -31,9 +31,11 @@ float angle_pendulo = 0;
 sensors_event_t a, g, temp;
 float thita_medido = 0;
 float phi_medido = 0;
-float dthita_medido = 0; 
+float dthita_medido = 0;
+float phi_eq = 90; 
 float phi_ref = 90;
 float thita_ref = 0;
+float T = 1/Frec_muestreo;
 
 //Observador
 float thita_next = 0;
@@ -47,13 +49,14 @@ float dphi_act = 0;
 
 //Controlador por var. estado
 float u_act = 0;
-
+float q_next = 0;
+float q_act = 0;
 float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0.2147},{0.0000, 0.0000, 1.0000, 0.0100},{0.0000, 0.0000, -2.9220, 0.6933}};
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
 float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
-float K[4] = {-0.9757, 0.0129, 0.7346, -0.0115};
-float F[2] = {0.000, -0.2654};
-float H[2] = {0.0, 0.0};
+float K[5] = {-0.7152  ,  0.0879 ,   0.1525 ,  -0.0811 ,  0.0133};//{-0.8715  ,  0.0429  ,  0.5018 ,  -0.0393 ,  0.0093};//{-0.9757, 0.0129, 0.7346, -0.0115, -0.0053}; // {-0.9757, 0.0129, 0.7346, -0.0115};
+float F[2] = {0.000, -0.2654}; 
+float H[1] = {-0.1};
 float Bd[4] = {0, 2.0454, 0, 2.9220};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -113,13 +116,13 @@ void loop() {
 
   //Calculo accion control antes de actualizar los valores asi tengo los _act y los _next
   //act=k-1, next=k
-  float ek_thita_act = (thita_ref - thita_act);
-  float ek_thita_next = (thita_ref - thita_next);
-  float ek_phi_act = (phi_ref - phi_act);
+  //float ek_thita_act = (thita_ref - thita_act);
+  //float ek_thita_next = (thita_ref - thita_next);
   float ek_phi_next = (phi_ref - phi_next);
+  q_next = q_act + ek_phi_next;
+  //u_act = (K[0]*thita_next + K[1]*dthita_next + K[2]*(phi_next - phi_eq) + K[3]*dphi_next) + H[0]*(ek_thita_act + T*ek_thita_next) + H[1]*(ek_phi_act + T*ek_phi_next);
   
-  u_act = (K[0]*thita_next + K[1]*dthita_next + K[2]*phi_next + K[3]*dphi_next) + H[0]*(ek_thita_act + T*ek_thita_next) + H[1]*(ek_phi_act + T*ek_phi_next);
-  
+  u_act = (K[0]*thita_next + K[1]*dthita_next + K[2]*(phi_next - phi_eq) + K[3]*dphi_next) + K[4]*q_next;
 
 
   //Actualiza los valores
@@ -127,13 +130,13 @@ void loop() {
   dthita_act = dthita_next;
   phi_act = phi_next;
   dphi_act = dphi_next;
-  
+  q_act = q_next;
 
   //Aplico accion de control
-  angle_2_servo(u_act);
+  angle_2_servo(phi_eq + u_act);
 
   //matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,phi_ref);
-  
+  Serial.println(phi_next);
   int aux = 1000/Frec_muestreo;
   time2 = millis();
   
@@ -231,13 +234,4 @@ float autocalibracion_IMU(){
   offset_aceleracion_Y = 0 - aux_y;
   offset_gyro_X = 0 - aux_x;
  
-}
-void setup() {
-  // put your setup code here, to run once:
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
 }

@@ -48,32 +48,35 @@ test2 = eig(Ad + Bd*K)
 
 %% Matriz de Feedforward
 
-F = pinv(C * pinv((eye(4)-(Ad + Bd*K))) * Bd);
-F = pinv(C * pinv(eye(size(Ad)) - (Ad + Bd * K)) * Bd);
+F = pinv(Cd * pinv((eye(4)-(Ad + Bd*K))) * Bd);
+F = pinv(Cd * inv(eye(size(Ad)) - (Ad + Bd * K)) * Bd);
+%F = pinv(Cd * inv(eye(size(Ad)) - (Ad - Bd * K)) * Bd);
 
 %% Controlador con accion integral
-
+Cdaux = [0,0,1,0];
 % Crear la matriz identidad del tamaño apropiado
-I = eye(size(Cd, 1));
+I = eye(size(Cdaux, 1));
 
 % Crear la matriz grande combinando Ad, Cd y I
 A_integral = [
-    Ad, zeros(size(Ad, 1), size(I, 2)); % Ad en la esquina superior izquierda y ceros a su derecha
-    Cd, I                              % Cd en la parte inferior izquierda y I a su derecha
+    Ad, zeros(size(Ad, 1), size(I, 1)); % Ad en la esquina superior izquierda y ceros a su derecha
+    -Cdaux, I                              % Cd en la parte inferior izquierda y I a su derecha
 ];
 
 B_integral = [
     Bd;
-    zeros(2, 1)
+    zeros(1, 1)
 ];
 
-polos3 = [polos2 0.94 0.95];
+polos3 = [polos2 0.95];
 polos4 = [0.94 0.95];
 
-%H = place(A_integral, B_integral, polos3);
+H = place(A_integral, -B_integral, polos3);
 
+%H = -0.01;
+test3 = eig(A_integral + B_integral * H);
 %H = place(Ad, -Bd, polos3);
-
+disp(test3)
 %H = place(eye(size(Ad)), zeros(size(Bd')), polos4);
 
 

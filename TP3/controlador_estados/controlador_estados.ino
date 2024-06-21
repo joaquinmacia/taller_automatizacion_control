@@ -121,7 +121,7 @@ void loop() {
   angle_2_servo(phi_ref + u_act);
 
   //matlab_send(thita_medido, thita_next,dthita_medido,dthita_next,phi_medido,phi_next,dphi_next,phi_ref);
-  
+  Serial.println(u_act);
   int aux = 1000/Frec_muestreo;
   time2 = millis();
   
