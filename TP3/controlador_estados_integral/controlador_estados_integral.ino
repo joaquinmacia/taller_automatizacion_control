@@ -54,9 +54,9 @@ float q_act = 0;
 float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0.2147},{0.0000, 0.0000, 1.0000, 0.0100},{0.0000, 0.0000, -2.9220, 0.6933}};
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
 float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
-float K[5] = {-0.7152  ,  0.0879 ,   0.1525 ,  -0.0811 ,  0.0133};//{-0.8715  ,  0.0429  ,  0.5018 ,  -0.0393 ,  0.0093};//{-0.9757, 0.0129, 0.7346, -0.0115, -0.0053}; // {-0.9757, 0.0129, 0.7346, -0.0115};
+float K[5] = {-0.7152  ,  0.0879 ,   0.1525 ,  -0.0811 ,  0.0133}; // K[4] == H[0]
 float F[2] = {0.000, -0.2654}; 
-float H[1] = {-0.1};
+//float H[1] = {-0.1};
 float Bd[4] = {0, 2.0454, 0, 2.9220};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -99,10 +99,10 @@ void setup() {
 void loop() {
   
   time1 = millis();
-  /*
+  
   while (Serial.available() > 0) {
     phi_ref = Serial.read();
-  }*/
+  }
   
   thita_medido = angle_IMU();  
   phi_medido = pote_2_angle();
@@ -117,11 +117,9 @@ void loop() {
 
   //Calculo accion control antes de actualizar los valores asi tengo los _act y los _next
   //act=k-1, next=k
-  //float ek_thita_act = (thita_ref - thita_act);
-  //float ek_thita_next = (thita_ref - thita_next);
   float ek_phi_next = (phi_ref - phi_next);
   q_next = q_act + ek_phi_next;
-  //u_act = (K[0]*thita_next + K[1]*dthita_next + K[2]*(phi_next - phi_eq) + K[3]*dphi_next) + H[0]*(ek_thita_act + T*ek_thita_next) + H[1]*(ek_phi_act + T*ek_phi_next);
+  
   
   u_act = (K[0]*thita_next + K[1]*dthita_next + K[2]*(phi_next - phi_eq) + K[3]*dphi_next) + K[4]*q_next;
 
