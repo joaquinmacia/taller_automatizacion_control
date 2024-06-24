@@ -79,6 +79,25 @@ disp(test3)
 
 
 
+%% Carga de datos respuesta impulso controlador de estados
+clc;
+close all;
+%Cargamos los datos del archivo de mediciones del Simulink
+dato1 = load ('impulso_controlador_estados.mat');
 
+inicio = 770;
+fin = 1350;
+% Asignar las variables a nombres más cortos si es necesario
+% Truncar los datos a partir del índice especificado, convertir a double y crear matrices de dos columnas
+accion_control = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.accion_control(inicio:fin))];
+phi_estimado = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.phi_estimado(inicio:fin))];
+phi_medido = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.phi_medido(inicio:fin))];
+phi_p_estimado = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.phi_p_estimado(inicio:fin))];
+phi_ref = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.phi_ref(inicio:fin))];
+thita_estimado = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.thita_estimado(inicio:fin))];
+thita_medido = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.thita_medido(inicio:fin))];
+thita_p_estimado = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.thita_p_estimado(inicio:fin))];
+thita_p_medido = [double(dato1.out.tout(inicio:fin)) - 7.6900, double(dato1.out.thita_p_medido(inicio:fin))];
 
+plot(tout,thita_medido)
 

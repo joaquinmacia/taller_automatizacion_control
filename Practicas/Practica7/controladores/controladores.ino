@@ -45,11 +45,10 @@ float I2[2] = {0,0};
 //Controlador proporcional derivativo kp = 0.6 ki = 0.0001
 float kp = 0.6; 
 float ki = 0;
-float kd = 0.0001;
+float kd = 0;//0.0001;
 float kp2 = 0.6; 
-float ki2 = 0;
-float kd2 = 0.0001;
-
+float ki2 = 0.1;
+float kd2 = 0;
 
 float T = 0.01;
 
@@ -93,7 +92,10 @@ void loop() {
   
   time1 = millis();
   
-  //Mediciones de los angulos
+  while (Serial.available() > 0) {
+    phi_ref = Serial.read();
+  }
+
   float angle_measure = pote_2_angle();
   angle_pendulo = angle_IMU();
 
@@ -110,7 +112,7 @@ void loop() {
   D2[1] = swap;
 
   //PID por Tustin
-  thita_control = kp2 * error2[0] + ki2 * (I2[1] + T/2 * error2[0] + T/2 * error2[1]) + kd2 * (2 * (error2[0] - error2[1])/T - D2[1]); 
+  thita_control = kp2 * error2[0] + ki2 * I2[0] + kd2 * D2[0]; 
 
   //Controlador 1
   //Calculo el error y actualizo el anterior
@@ -126,7 +128,7 @@ void loop() {
   D[1] = swap;
 
   //PID por Tustin
-  u = kp * error[0] + ki * (I[1] + T/2 * error[0] + T/2 * error[1]) + kd * (2 * (error[0] - error[1])/T - D[1]);
+  u = kp * error[0] + ki * I[0] + kd * D[0];
   
   //Aplico la accion de control
   angle_2_servo(phi_ref + u);
@@ -135,7 +137,7 @@ void loop() {
   time2 = millis();
   
 
-  matlab_send(u, angle_measure, angle_pendulo);
+  matlab_send(phi_ref, angle_measure, angle_pendulo);
 
   delay(aux - (time2 - time1));   //Delay necesario para el muestreo a la frecuencia Frec_muestreo
 }

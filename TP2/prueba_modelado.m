@@ -222,7 +222,7 @@ kp = 0.6;
 C_p = zpk([],[],kp);
 Ts = 0.01;
 Cd_p = c2d(C_p,Ts,'tustin');
-bode(P * C_p);
+%bode(P * C_p);
 %% Diseño de controlador PD
 close all;
 P = P_servo * Gpendulo;
