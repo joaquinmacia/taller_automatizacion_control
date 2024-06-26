@@ -53,7 +53,7 @@ float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
 float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
 float K[4] = {-0.9757, 0.0129, 0.7346, -0.0115};
-float F[2] = {0.000,  0.265};
+float F[2] = {0.000,  0.365};
 float Bd[4] = {0, 2.0454, 0, 2.9220};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -106,10 +106,10 @@ void loop() {
   dthita_medido = (g.gyro.x) * 180 / pi; 
 
   //Calcula los valores actuales
-  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * phi_eq;
-  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * phi_eq;
-  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * phi_eq;  
-  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * phi_eq;
+  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * (phi_eq + u_act);
+  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * (phi_eq + u_act);
+  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * (phi_eq + u_act);  
+  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * (phi_eq + u_act);
 
   //Actualiza los valores
   thita_act = thita_next;

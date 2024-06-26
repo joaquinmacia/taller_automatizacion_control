@@ -32,7 +32,8 @@ sensors_event_t a, g, temp;
 float thita_medido = 0;
 float phi_medido = 0;
 float dthita_medido = 0; 
-float phi_ref = 90;
+float phi_eq = 90;
+float phi_ref = 0;
 
 //Observador
 float thita_next = 0;
@@ -90,21 +91,21 @@ void setup() {
 void loop() {
   
   time1 = millis();
-  
+  /*
   while (Serial.available() > 0) {
     phi_ref = Serial.read();
   }
   angle_2_servo(phi_ref);
-
+  */
   thita_medido = angle_IMU();  
   phi_medido = pote_2_angle();
   dthita_medido = (g.gyro.x) * 180 / pi; 
 
   //Calcula los valores actuales
-  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * phi_ref;
-  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * phi_ref;
-  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * phi_ref;  
-  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * phi_ref;
+  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * (phi_eq + phi_ref);
+  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * (phi_eq + phi_ref);
+  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * (phi_eq + phi_ref);  
+  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * (phi_eq + phi_ref);
 
   //Actualiza los valores
   thita_act = thita_next;

@@ -54,7 +54,7 @@ float q_act = 0;
 float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0.2147},{0.0000, 0.0000, 1.0000, 0.0100},{0.0000, 0.0000, -2.9220, 0.6933}};
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
 float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
-float K[5] = {-0.7152  ,  0.0879 ,   0.1525 ,  -0.0811 ,  0.0133}; // K[4] == H[0]
+float K[5] = {-0.6891  ,  0.0954  ,  0.0943 ,  -0.0581  ,  0.0186};//{-0.7152  ,  0.0879 ,   0.1525 ,  -0.0811 ,  0.0133}; // K[4] == H[0]
 float F[2] = {0.000, -0.2654}; 
 //float H[1] = {-0.1};
 float Bd[4] = {0, 2.0454, 0, 2.9220};
@@ -109,10 +109,10 @@ void loop() {
   dthita_medido = (g.gyro.x) * 180 / pi; 
 
   //Calcula los valores actuales
-  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * phi_ref;
-  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * phi_ref;
-  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * phi_ref;  
-  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * phi_ref;
+  thita_next = Ad[0][0] * thita_act + Ad[0][1] * dthita_act + Ad[0][2] * phi_act + Ad[0][3] * dphi_act  + L[0][0] * (thita_medido - thita_act) + L[0][1] * (phi_medido - phi_act) + Bd[0] * (phi_ref + u_act);
+  dthita_next = Ad[1][0] * thita_act + Ad[1][1] * dthita_act + Ad[1][2] * phi_act + Ad[1][3] * dphi_act  + L[1][0] * (thita_medido - thita_act) + L[1][1] * (phi_medido - phi_act) + Bd[1] * (phi_ref + u_act);
+  phi_next = Ad[2][0] * thita_act + Ad[2][1] * dthita_act + Ad[2][2] * phi_act + Ad[2][3] * dphi_act  + L[2][0] * (thita_medido - thita_act) + L[2][1] * (phi_medido - phi_act) + Bd[2] * (phi_ref + u_act);  
+  dphi_next = Ad[3][0] * thita_act + Ad[3][1] * dthita_act + Ad[3][2] * phi_act + Ad[3][3] * dphi_act  + L[3][0] * (thita_medido - thita_act) + L[3][1] * (phi_medido - phi_act) + Bd[3] * (phi_ref + u_act);
 
 
   //Calculo accion control antes de actualizar los valores asi tengo los _act y los _next
