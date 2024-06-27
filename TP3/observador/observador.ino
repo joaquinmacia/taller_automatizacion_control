@@ -47,7 +47,13 @@ float dphi_act = 0;
 
 float Ad[4][4] = {{1.0000, 0.0100, 0.0000, 0.0000},{-0.6500, 0.9739, -2.0454, -0.2147},{0.0000, 0.0000, 1.0000, 0.0100},{0.0000, 0.0000, -2.9220, 0.6933}};
 float Cd[2][4] = {{1,0,0,0},{0,0,1,0}};
-float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
+//float L[4][2] = {{1.5155, -0.2147},{54.7727, -27.9965},{0.0000, 1.2349},{0.0000, 18.5863}};
+float L[4][2] = {
+  {1.0571, -0.2147},
+  {25.7984, -18.1551},
+  {-0.0000, 0.7765},
+  {-0.0000, 2.4733}
+};
 float Bd[4] = {0,2.0454, 0, 2.9220};
 
 //Offset: Acceleration X: -0.64, Y: -0.02, Z: 7.86 m/s^2 (MEDIDO)
@@ -91,12 +97,12 @@ void setup() {
 void loop() {
   
   time1 = millis();
-  /*
+  
   while (Serial.available() > 0) {
-    phi_ref = Serial.read();
+    phi_ref = Serial.read() - 90;
   }
-  angle_2_servo(phi_ref);
-  */
+  angle_2_servo(phi_eq + phi_ref);
+  
   thita_medido = angle_IMU();  
   phi_medido = pote_2_angle();
   dthita_medido = (g.gyro.x) * 180 / pi; 
