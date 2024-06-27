@@ -33,7 +33,7 @@ float thita_medido = 0;
 float phi_medido = 0;
 float dthita_medido = 0;
 float phi_eq = 90; 
-float phi_ref = 90;
+float phi_ref = 0;
 float thita_ref = 0;
 float T = 1/Frec_muestreo;
 

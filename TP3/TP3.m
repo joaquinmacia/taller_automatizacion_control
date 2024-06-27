@@ -107,9 +107,33 @@ plot(thita_estimado(:,1),thita_estimado(:,2));
 clc;
 close all;
 %Cargamos los datos del archivo de mediciones del Simulink
-dato1 = load ('escalones_controlador_feedforward.mat');
+dato1 = load ('respuesta_escalon_feedforward_modificado.mat');
 
-inicio = 6;
+inicio = 1;
+fin = length(dato1.out.tout);
+cte = 0;
+% Asignar las variables a nombres más cortos si es necesario
+% Truncar los datos a partir del índice especificado, convertir a double y crear matrices de dos columnas
+accion_control = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.accion_control(inicio:fin))];
+phi_estimado = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.phi_estimado(inicio:fin))];
+phi_medido = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.phi_medido(inicio:fin))];
+phi_p_estimado = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.phi_p_estimado(inicio:fin))];
+phi_ref = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.phi_ref(inicio:fin))];
+thita_estimado = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.thita_estimado(inicio:fin))];
+thita_medido = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.thita_medido(inicio:fin))];
+thita_p_estimado = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.thita_p_estimado(inicio:fin))];
+thita_p_medido = [double(dato1.out.tout(inicio:fin)) - cte, double(dato1.out.thita_p_medido(inicio:fin))];
+
+plot(phi_medido(:,1),phi_medido(:,2))
+
+%% Cargo los datos de respuesta a escalones del Integrador
+
+clc;
+close all;
+%Cargamos los datos del archivo de mediciones del Simulink
+dato1 = load ('escalones_controlador_integral.mat');
+
+inicio = 1;
 fin = length(dato1.out.tout);
 cte = 0;
 % Asignar las variables a nombres más cortos si es necesario
