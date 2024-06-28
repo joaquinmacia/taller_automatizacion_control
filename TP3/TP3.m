@@ -49,7 +49,7 @@ test2 = eig(Ad + Bd*K)
 %% Matriz de Feedforward
 
 F = pinv(Cd * pinv((eye(4)-(Ad + Bd*K))) * Bd);
-F = pinv(Cd * inv(eye(size(Ad)) - (Ad - Bd * K)) * Bd);
+F = pinv(Cd * inv(eye(size(Ad)) - (Ad + Bd * K)) * Bd);
 %F = pinv(Cd * inv(eye(size(Ad)) - (Ad - Bd * K)) * Bd);
 
 %% Controlador con accion integral
@@ -77,7 +77,6 @@ test3 = eig(A_integral + B_integral * H);
 
 disp(test3)
 
-%% Agregar la nueva K usada y ver que sea estable
 
 %% Carga de datos respuesta impulso controlador de estados
 clc;
